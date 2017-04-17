@@ -26,6 +26,7 @@ import pkgPokerEnum.eAction;
 import pkgPokerEnum.eGame;
 import pkgPokerBLL.Action;
 import pkgPokerBLL.GamePlay;
+import pkgPokerBLL.Player;
 import pkgPokerBLL.Table;
 
 public class PokerTableController implements Initializable {
@@ -104,8 +105,26 @@ public class PokerTableController implements Initializable {
 	//TODO: Lab #4 - Complete (fix) setiPlayerPosition
 	public void btnSitLeave_Click(ActionEvent event) {
 
-		// Set the PlayerPosition in the Player
-		mainApp.getPlayer().setiPlayerPosition(1);
+
+
+		ToggleButton btn = (ToggleButton)event.getSource();
+		
+		
+		if(btn.getId().equals("btnPos2SitLeave") && btn.getText().equals("Sit") ){
+			// Set the PlayerPosition in the Player
+			mainApp.getPlayer().setiPlayerPosition(2);
+			lblPlayerPos2.setText(mainApp.getPlayer().getPlayerName());
+			
+		}
+		else if(btn.getId().equals("btnPos1SitLeave") && btn.getText().equals("Sit")){
+			// Set the PlayerPosition in the Player
+			mainApp.getPlayer().setiPlayerPosition(1);
+			lblPlayerPos1.setText(mainApp.getPlayer().getPlayerName());
+		}
+		else{
+			//Get rid of current player
+			mainApp.getPlayer().setiPlayerPosition(-1);
+		}
 
 		// Build an Action message
 		Action act = new Action(eAction.Sit, mainApp.getPlayer());
@@ -148,7 +167,7 @@ public class PokerTableController implements Initializable {
 			return hboxP1Cards;
 		case 2:
 			return hboxP2Cards;
- 
+
 		default:
 			return null;
 		}
@@ -157,11 +176,25 @@ public class PokerTableController implements Initializable {
 
 	//TODO: Lab #4 Complete the implementation
 	public void Handle_TableState(Table HubPokerTable) {
-
+		Iterator it = HubPokerTable.getTablePlayers().entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry)it.next();
+			Player p = (Player)pair.getValue();
+			if(p.getiPokerClientID() == mainApp.getPlayer().getiPokerClientID()){
+				if(mainApp.getPlayer().getiPlayerPosition() == 1){
+					btnPos1SitLeave.setText("Leave"); 
+					btnPos2SitLeave.setVisible(false);
+				}
+				else{
+					btnPos2SitLeave.setText("Leave"); 
+					btnPos1SitLeave.setVisible(false);
+				}
+			}
+		}
 	}
 
 	public void Handle_GameState(GamePlay HubPokerGame) {
-		
+
 	}
 
 	private ImageView BuildImage(int iCardNbr) {
