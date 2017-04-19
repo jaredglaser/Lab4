@@ -108,26 +108,29 @@ public class PokerTableController implements Initializable {
 
 
 		ToggleButton btn = (ToggleButton)event.getSource();
-		
+		Action act = null;
 		
 		if(btn.getId().equals("btnPos2SitLeave") && btn.getText().equals("Sit") ){
 			// Set the PlayerPosition in the Player
 			mainApp.getPlayer().setiPlayerPosition(2);
-			lblPlayerPos2.setText(mainApp.getPlayer().getPlayerName());
+			//lblPlayerPos2.setText(mainApp.getPlayer().getPlayerName());
+			act = new Action(eAction.Sit, mainApp.getPlayer());
 			
 		}
 		else if(btn.getId().equals("btnPos1SitLeave") && btn.getText().equals("Sit")){
 			// Set the PlayerPosition in the Player
 			mainApp.getPlayer().setiPlayerPosition(1);
-			lblPlayerPos1.setText(mainApp.getPlayer().getPlayerName());
+			//lblPlayerPos1.setText(mainApp.getPlayer().getPlayerName());
+			act = new Action(eAction.Sit, mainApp.getPlayer());
 		}
 		else{
 			//Get rid of current player
 			mainApp.getPlayer().setiPlayerPosition(-1);
+			act = new Action(eAction.Leave, mainApp.getPlayer());
 		}
 
-		// Build an Action message
-		Action act = new Action(eAction.Sit, mainApp.getPlayer());
+		
+		
 
 		// Send the Action to the Hub
 		mainApp.messageSend(act);
@@ -176,19 +179,36 @@ public class PokerTableController implements Initializable {
 
 	//TODO: Lab #4 Complete the implementation
 	public void Handle_TableState(Table HubPokerTable) {
+		lblPlayerPos1.setText("");
+		lblPlayerPos2.setText("");
+		btnPos1SitLeave.setVisible(true);
+		btnPos2SitLeave.setVisible(true);
+		btnPos1SitLeave.setText("Sit");
+		btnPos2SitLeave.setText("Sit");
+		
+		
+		
 		Iterator it = HubPokerTable.getTablePlayers().entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry pair = (Map.Entry)it.next();
 			Player p = (Player)pair.getValue();
+			if(p.getiPlayerPosition()==1)
+				lblPlayerPos1.setText(p.getPlayerName());
+			else	
+				lblPlayerPos2.setText(p.getPlayerName());
+			
 			if(p.getiPokerClientID() == mainApp.getPlayer().getiPokerClientID()){
 				if(mainApp.getPlayer().getiPlayerPosition() == 1){
 					btnPos1SitLeave.setText("Leave"); 
 					btnPos2SitLeave.setVisible(false);
 				}
-				else{
+				else if(mainApp.getPlayer().getiPlayerPosition() == 2){
 					btnPos2SitLeave.setText("Leave"); 
 					btnPos1SitLeave.setVisible(false);
 				}
+			}
+			else{
+				getSitLeave(p.getiPlayerPosition()).setVisible(false);
 			}
 		}
 	}
